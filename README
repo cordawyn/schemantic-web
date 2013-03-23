@@ -1,0 +1,99 @@
+* Schemantic Web version 0.0 (beta)                     -*- outline -*-
+
+This is the Schemantic Web, a collection of tools related to the
+Semantic Web for portable Scheme.
+
+This file is written by Taylor R. Campbell and placed in the Public
+Domain.  All warranties are disclaimed.
+
+This library contains
+
+- a URI abstraction;
+- an RDF node abstraction;
+- an RDF graph abstraction, with two different implementations;
+- a minimal HTTP 1.0 client;
+- a SPARQL query generator;
+- a SPARQL-over-HTTP client;
+- an RDF N-Triples parser; and
+- an RDF Turtle parser.
+
+The URI abstraction is mostly interface-compatible with the one found
+in MIT Scheme, written by Chris Hanson.  However, it is written in
+portable Scheme, and does not rely on MIT Scheme's parser language.
+
+This code relies on Taylor R. Campbell's Parscheme library, a
+collection of tools for writing parsers in Scheme.  It is available at
+<http://mumble.net/~campbell/scheme/parscheme.tar.gz>, or by Darcs at
+<http://mumble.net/~campbell/darcs/parscheme/>.
+
+This code is lightly tested, in test suites found in files named
+`test-*.scm', supplied with data in the `tests/' subdirectory.  There
+is no documentation, yet, but there are some minimal examples beyond
+the test suites in the `examples/' subdirectory.
+
+The Schemantic Web can be loaded into the following Scheme systems:
+
+- Scheme48:
+
+  Load the following files into the config package:
+
+    aux/s48-interfaces.scm
+    aux/s48-packages.scm
+    s48-interfaces.scm
+    s48-packages.scm
+
+** Portability
+
+At present, this code runs only in Scheme48, but because it is written
+in a portable manner, porting it to other Schemes should be easy.
+Although the code relies on some non-standard extensions, these have
+all been very carefully isolated, and most of the non-R5RS dependencies
+are SRFIs.  In particular, this collection uses
+
+  SRFI 1 (List Library),
+  SRFI 6 (Basic String Ports) with the following utility:
+
+    (define (call-with-string-output-port receiver)
+      (let ((output-port (open-output-string)))
+        (receiver output-port)
+        (get-output-string output-port))),
+
+  SRFI 9 (Defining Record Types),
+  SRFI 13 (String Library),
+  SRFI 14 (Character-Set Library),
+  SRFI 23 (Error Reporting Mechanism), and
+  SRFI 45 (Primitives for Expressing Iterative Lazy Algorithms),
+
+all of which except for SRFI 45 are widely supported.  SRFI 45 is not
+an onerous burden, however; it would suffice to define
+
+  (define-syntax lazy
+    (syntax-rules ()
+      ((LAZY promise)
+       (DELAY (FORCE promise))))),
+
+if space safety is not a concern.  If space safety is a concern, then
+the SRFI 45 reference implementation is available.
+
+The only other non-standard extensions are
+
+- procedures to convert US-ASCII characters to and from their US-ASCII
+  codes (CHAR->ASCII and ASCII->CHAR), which in many systems can be
+  defined as aliases for CHAR->INTEGER and INTEGER->CHAR; and
+- hash tables that are keyed by strings and that hold the associated
+  data only weakly, for interning URIs and URI authorities (`internment
+  camps': (MAKE-STRING-INTERNMENT-CAMP), (INTERN <internment-camp>
+  <string-key> <datum-generator>), (SOFT-INTERN <internment-camp>
+  <string-key>); see packages.scm for an example definition).
+
+Finally, the simple HTTP client requires networking support, which is
+highly dependent on the implementation.  Consequently, it is at present
+implemented for Scheme48 specifically in s48-http-client.scm, but
+implementing it in other Scheme systems is relatively straightforward.
+Also, one of the RDF graph implementations uses a mapping abstraction,
+which in Scheme48 is implemented using hash tables in s48-rdf-map.scm.
+This, too, is straightforward to implement alternatively.
+
+** Documentation
+
+To be written.
